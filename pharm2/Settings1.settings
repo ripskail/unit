@@ -1,0 +1,44 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="pharm2" GeneratedClassName="Settings1">
+  <Profiles />
+  <Settings>
+    <Setting Name="VNC" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="PYTTU" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="IB" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="WINS" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="PATH" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Server=192.168.146.35;Port=5432; User Id=okit;Password=okit; Database=Pharm;</Value>
+    </Setting>
+    <Setting Name="ChekedAktiv" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ChekedTum" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ChekedTob" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ChekedSois" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ChekedIshm" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ChekedPril" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="Findstring1" Type="System.String" Scope="User">
+      <Value Profile="(Default)">
+ap.id, o.name as Область, podraz as Подразделение, kod_parus as \"Код паруса\", adress as Адрес, kol_rs as \"Раб.ст.\", activ as Активность, \"Chek_server\" as \"chek server\", v.name as Версия, ip_server as IPserver, elec_recept as \"элек.рецепт\", acha, lekarstvo as Лекарство, s.name as OS , docker, zayvka as Заявка, alias as АлиасБД, phone as Телефон, comment as Комментарий, scan_recept as СКАНрецепт, f.name as Firebird, b.name as bit, checkbase, backup, pkillmono, nbackup, prov_backup as \"Проверка Backup\", \"RV_ip\",internet,oxrana
+</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
