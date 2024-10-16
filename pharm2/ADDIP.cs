@@ -11,10 +11,10 @@ using System.Windows.Forms;
 
 namespace pharm2
 {
-    public partial class Form6 : Form
+    public partial class ADDIP : Form
     {
         string PATH;
-        public Form6()
+        public ADDIP()
         {
             InitializeComponent();
             PATH = Settings1.Default.PATH;
@@ -81,7 +81,7 @@ namespace pharm2
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void INSERT(object sender, EventArgs e)
         { 
             
             string st = "INSERT INTO public.\"IPkass\"(ip, apteka_id) SELECT '" + textBox2.Text + "',id FROM public.\"Apteka\" WHERE  kod_parus ='" + comboBox1.SelectedValue + "';"; 
@@ -95,7 +95,7 @@ namespace pharm2
             fill();
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void DELETE(object sender, EventArgs e)
         {
           string  st = "DELETE FROM public.\"IPkass\"WHERE id =" + textBox1.Text + ";";
         
@@ -108,7 +108,7 @@ namespace pharm2
             fill();
     }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void UPDATE(object sender, EventArgs e)
         {
             string st = "UPDATE public.\"IPkass\" SET ip = '"+textBox2.Text+"',apteka_id =(select id from public.\"Apteka\" WHERE kod_parus = '" + comboBox1.SelectedValue + "') WHERE id =" + textBox1.Text + ";";
         

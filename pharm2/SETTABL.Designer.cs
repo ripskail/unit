@@ -1,6 +1,6 @@
 ﻿namespace pharm2
 {
-    partial class Form8
+    partial class SETTABL
     {
         /// <summary>
         /// Required designer variable.

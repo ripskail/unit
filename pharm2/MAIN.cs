@@ -8,6 +8,7 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using System.Windows.Forms;
 using Renci.SshNet;
 using Renci.SshNet.Common;
@@ -15,11 +16,20 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 using Npgsql;
-
+using System.Net;
+using System.IO;
+using ZXing;
+using ZXing.Common;
+using ZXing.QrCode;
+using ZXing.Datamatrix;
+using Word = Microsoft.Office.Interop.Word;
+using System.Drawing.Imaging;
+using Renci.SshNet.Sftp;
+using FirebirdSql.Data.FirebirdClient;
 
 namespace pharm2
 {
-    public partial class Form1 : Form
+    public partial class MAIN : Form
     {
         System.Windows.Forms.Timer timer1 = new System.Windows.Forms.Timer();
         int i = 0;
@@ -28,7 +38,7 @@ namespace pharm2
         string ip,PATH,STR;
         private DataSet ds = new DataSet();
         string mac;
-        public Form1()
+        public MAIN()
         {
 
             InitializeComponent();
@@ -100,13 +110,14 @@ namespace pharm2
             /*
             string[] qwerty = new string[dt.Rows.Count];
             string[] qwe = new string[dt.Rows.Count];
-            foreach (DataRow row in dt.Rows)
+            */foreach (DataRow row in dt.Rows)
             {
-                qwerty[j] = row["kod_parus"].ToString();
-                qwe[j] = row["id"].ToString();
-                j++;
+            
+                string[] rt = { row["kod"].ToString(), row["par"].ToString() };
+                var listViewItem = new ListViewItem(rt);
+                listView1.Items.Add(listViewItem);
             }
-            j = 0;
+            /*j = 0;
           Array.Sort(qwerty);
             comboBox1.DataSource = qwerty;
             comboBox1.DisplayMember = qwerty;
@@ -114,6 +125,7 @@ namespace pharm2
             comboBox1.DataSource = ds.Tables[0];
             comboBox1.DisplayMember = "par";
             comboBox1.ValueMember = "kod";
+            
            // comboBox1.Sorted.ToString();
         }
         public void fireb()
@@ -149,7 +161,7 @@ namespace pharm2
             NpgsqlConnection con = new NpgsqlConnection(PATH);
             con.Open();
             DataSet ers = new DataSet();
-            string sql = "SELECT id as kod,name as nm FROM \"OS\";";
+            string sql = "SELECT id as kod,name as nm FROM \"OS\" ORDER BY name;";
             NpgsqlDataAdapter da = new NpgsqlDataAdapter(sql, con);
             ers.Reset();
             da.Fill(ers);
@@ -163,7 +175,7 @@ namespace pharm2
             NpgsqlConnection con = new NpgsqlConnection(PATH);
             con.Open();
             DataSet ers = new DataSet();
-            string sql = "SELECT id as kod,name as nm FROM \"Version\";";
+            string sql = "SELECT id as kod,name as nm FROM \"Version\" ORDER BY name;";
             NpgsqlDataAdapter da = new NpgsqlDataAdapter(sql, con);
             ers.Reset();
             da.Fill(ers);
@@ -177,7 +189,7 @@ namespace pharm2
             NpgsqlConnection con = new NpgsqlConnection(PATH);
             con.Open();
             DataSet ers = new DataSet();
-            string sql = "SELECT id as kod,name as nm FROM \"Obl\";";
+            string sql = "SELECT id as kod,name as nm FROM \"Obl\" ORDER BY name;";
             NpgsqlDataAdapter da = new NpgsqlDataAdapter(sql, con);
             ers.Reset();
             da.Fill(ers);
@@ -284,17 +296,17 @@ namespace pharm2
 
                 try
                 {
-                    textBox1.Clear();
+                richTextBox1.Clear();
 
                 Ping ping =
             new Ping();
                 PingReply pingReply = ping.Send(mac);
-                textBox1.Text +=" "+ pingReply.RoundtripTime; //время ответа
-                textBox1.Text += " " + pingReply.Status;        //статус
-                textBox1.Text += " " + pingReply.Address;       //IP
+                richTextBox1.Text +=" "+ pingReply.RoundtripTime; //время ответа
+                richTextBox1.Text += " " + pingReply.Status;        //статус
+                richTextBox1.Text += " " + pingReply.Address;       //IP
 
                         rep = pingreq.Send(mac);
-                        textBox1.Text += "  Reply From {" + rep.Address.ToString() + "} : time={" + rep.RoundtripTime + "} TTL={" + rep.Options.Ttl + "}" + "\r\n";
+                richTextBox1.Text += "  Reply From {" + rep.Address.ToString() + "} : time={" + rep.RoundtripTime + "} TTL={" + rep.Options.Ttl + "}" + "\r\n";
                     
                 }
                 catch (Exception) // тут перехватывайте нужный тип исключения
@@ -308,8 +320,59 @@ namespace pharm2
             
 
         }
-      
-        private void DoCommand()
+        private async void allping()
+        {
+           
+            Ping pingreq = new Ping();
+            DataSet dss = new DataSet();
+            NpgsqlConnection con = new NpgsqlConnection(PATH);
+            con.Open();
+            string sql = "SELECT w.podraz, w.kod_parus, w.ip_server, w.alias FROM public.\"Apteka\" w ORDER BY w.kod_parus ASC";
+            NpgsqlDataAdapter da = new NpgsqlDataAdapter(sql, con);
+            dss.Reset();
+            da.Fill(dss);
+            DataTable dtt;
+            dtt = dss.Tables[0];
+            con.Close();
+            richTextBox1.Clear();
+            try
+            {
+                foreach (DataRow row in dtt.Rows)
+                {
+                    IPStatus t =await DummyPing(row);
+                    richTextBox1.Text +=t+ row["kod_parus"].ToString() + " || " + row["podraz"].ToString() + " ip - " + row["ip_server"].ToString() + Environment.NewLine  ;
+                } 
+            }
+            catch { }
+
+        }
+
+        async Task<IPStatus> DummyPing(DataRow ip)
+        {
+            //try
+           /// {
+                IPAddress IP = null;
+                IPAddress.TryParse(ip["ip_server"].ToString(), out IP);
+                PingReply pr = await new Ping().SendPingAsync(IP);
+
+                // Ping ping = new Ping();
+                // PingReply pingReply = ping.Send(ip["ip_server"].ToString());
+                //Thread.Sleep(200);
+                //textBox13.Text = Environment.NewLine + "Успешно " + ip["kod_parus"].ToString() + " || " + ip["podraz"].ToString() + " ip - " + ip["ip_server"].ToString() ;
+                return pr.Status;
+
+            /*}
+            catch (Exception) // тут перехватывайте нужный тип исключения
+            {
+              
+                //textBox13.Text = Environment.NewLine+ "Нет связи c " + ip["kod_parus"].ToString() + " || " + ip["podraz"].ToString() + " ip - " + ip["ip_server"].ToString() + Environment.NewLine;
+            }
+            finally
+            {
+
+            }*/
+        }
+            private void DoCommand()
         {
             if (string.IsNullOrEmpty(textBox14.Text.Trim()))
             {
@@ -334,7 +397,7 @@ namespace pharm2
             else { 
                 PasswordConnectionInfo connectionInfo = new PasswordConnectionInfo(mac, u, p);
             connectionInfo.Timeout = TimeSpan.FromSeconds(30);
-
+                   richTextBox1.Clear();
                 using (var client = new SshClient(connectionInfo))
                 {
 
@@ -349,12 +412,12 @@ namespace pharm2
                             var result = command.Result;
                             result = result.Substring(0, result.Length - 1);
 
-                            textBox1.Text = "SSH connection active " + result;
+                            richTextBox1.Text = "SSH connection active " + result;
 
                         }
                         else
                         {
-                            textBox1.Text = "SSH connection NOTactive";
+                            richTextBox1.Text = "SSH connection NOTactive";
                         }
                     }
                     catch (Exception) // тут перехватывайте нужный тип исключения
@@ -370,7 +433,7 @@ namespace pharm2
                 }
             }
         }
-        private async void button2_ClickAsync(object sender, EventArgs e)
+       /* private async void button2_ClickAsync(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(textBox14.Text.Trim()))
             {
@@ -383,8 +446,8 @@ namespace pharm2
                     button3.Enabled = false;
                     timer1.Start();
                     MessageBox.Show("Подождите 10 сек... после этого нажмите  кнопку VNC");
-                    button2.Enabled = false;
-                    textBox1.Text = "Подключение по PUTTY...";
+                    //button2.Enabled = false;
+                    richTextBox1.Text = "Подключение по PUTTY...";
                     try
                     {
                         await Task.Run(new Action(DoCommand));
@@ -395,7 +458,7 @@ namespace pharm2
                     }
                     finally
                     {
-                        textBox1.Text = " Связь SSH разорвана";
+                        richTextBox1.Text = " Связь SSH разорвана";
                         button2.Enabled = true;
                     }
                 }
@@ -408,7 +471,7 @@ namespace pharm2
                     timer1.Start();
                     MessageBox.Show("Подождите 10 сек... после этого нажмите  кнопку VNC");
                     button2.Enabled = false;
-                    textBox1.Text = "Подключение по PUTTY...";
+                    richTextBox1.Text = "Подключение по PUTTY...";
                     try
                     {
                         await Task.Run(new Action(DoCommand));
@@ -419,13 +482,13 @@ namespace pharm2
                     }
                     finally
                     {
-                        textBox1.Text = " Связь SSH разорвана";
+                        richTextBox1.Text = " Связь SSH разорвана";
                         button2.Enabled = true;
                     }
                 }
             }
            
-        }
+        }*/
 
         private void button3_Click(object sender, EventArgs e)
         {
@@ -502,6 +565,10 @@ namespace pharm2
         public void SW(string q)
         {
             comboBox1.SelectedValue = q;
+            // listView1.FullRowSelect = true;
+            // listView1.Items[0].Focused = true;
+            // listView1.Items[0].Selected = true;
+            listView1.FindItemWithText(q);
             this.WindowState = FormWindowState.Normal;
             this.Focus();
 
@@ -518,7 +585,7 @@ namespace pharm2
             }
             else
             {
-                Form2 newForm = new Form2(this);
+                ALLAPTEKA newForm = new ALLAPTEKA(this);
                 newForm.Show();
                
             }
@@ -722,31 +789,31 @@ namespace pharm2
 
         private void областьToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form5 newForm = new Form5(4);
+            ADD newForm = new ADD(4);
             newForm.Show();
         }
 
         private void verПриложенияToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form5 newForm = new Form5(1);
+            ADD newForm = new ADD(1);
             newForm.Show();
         }
 
         private void разрядСистемыToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form5 newForm = new Form5(2);
+            ADD newForm = new ADD(2);
             newForm.Show();
         }
 
         private void верFirebirdToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form5 newForm = new Form5(3);
+            ADD newForm = new ADD(3);
             newForm.Show();
         }
 
         private void oSToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form5 newForm = new Form5(5);
+            ADD newForm = new ADD(5);
             newForm.Show();
         }
 
@@ -792,7 +859,7 @@ namespace pharm2
 
         private void iPКассToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form6 newForm = new Form6();
+            ADDIP newForm = new ADDIP();
             newForm.Show();
         }
 
@@ -814,6 +881,419 @@ namespace pharm2
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void button10_Click_1(object sender, EventArgs e)
+        {
+            XDocument xdoc = new XDocument();
+            XElement aliases = new XElement("aliases");
+            /*--------------------------------------------*/
+            DataSet dss = new DataSet();
+            NpgsqlConnection con = new NpgsqlConnection(PATH);
+            con.Open();
+            string sql = "SELECT w.podraz, w.kod_parus, w.ip_server, w.alias FROM public.\"Apteka\" w ORDER BY w.kod_parus ASC";
+            NpgsqlDataAdapter da = new NpgsqlDataAdapter(sql, con);
+            dss.Reset();
+            da.Fill(dss);
+            DataTable dtt;
+            dtt = dss.Tables[0];
+            con.Close();
+            try
+            {
+                foreach (DataRow row in dtt.Rows)
+                {
+                    XElement alias = new XElement("alias");
+                    // создаем два элемента company и age 
+                    XElement name = new XElement("name", row["kod_parus"].ToString()+" ## "+row["podraz"].ToString());
+                    XElement alias2 = new XElement("alias", row["alias"].ToString());
+                    XElement host = new XElement("host", row["ip_server"].ToString());
+                    XElement port = new XElement("port",3050);
+                    alias.Add(name);
+                    alias.Add(alias2);
+                    alias.Add(host);
+                    alias.Add(port);
+                    aliases.Add(alias);
+
+                }
+            }
+            catch { }
+
+            xdoc.Add(aliases);
+            xdoc.Save("alias.xml");
+
+        }
+
+        private void button15_Click_1(object sender, EventArgs e)
+        {
+            PasswordConnectionInfo connectionInfo = new PasswordConnectionInfo(textBox7.Text, 22, "devel", "devel");
+            connectionInfo.Timeout = TimeSpan.FromSeconds(30);
+            richTextBox1.Clear();
+            using (var client = new SshClient(connectionInfo))
+            {
+                try
+                {
+                    client.Connect();
+                    if (client.IsConnected)
+                    {
+                        richTextBox1.Text =  "SSH connection active";
+                        var result = client.RunCommand("df -H");
+                        richTextBox1.Text = result.Result.ToString();
+                    }
+                    else
+                    {
+                        Console.WriteLine("SSH connection NOTactive");
+                    }
+
+                }
+                catch { }
+            }
+        }
+        private static void WriteStream(string cmd, ShellStream stream)
+        {
+            stream.WriteLine(cmd + "; echo this-is-the-end");
+            while (stream.Length == 0)
+                Thread.Sleep(500);
+        }
+
+        private static string ReadStream(ShellStream stream)
+        {
+            StringBuilder result = new StringBuilder();
+
+            string line;
+            while ((line = stream.ReadLine()) != "this-is-the-end")
+                result.AppendLine(line);
+
+            return result.ToString();
+        }
+
+        private static void SwithToRoot(string password, ShellStream stream)
+        {
+            // Get logged in and get user prompt
+            string prompt = stream.Expect(new Regex(@"[$>]"));
+            //Console.WriteLine(prompt);
+
+            // Send command and expect password or user prompt
+            stream.WriteLine("su - root");
+            prompt = stream.Expect(new Regex(@"([$#>:])"));
+            //Console.WriteLine(prompt);
+
+            // Check to send password
+            if (prompt.Contains(":"))
+            {
+                // Send password
+                stream.WriteLine(password);
+                prompt = stream.Expect(new Regex(@"[$#>]"));
+                //Console.WriteLine(prompt);
+            }
+        }
+        public void cmod(string pyt)
+        {
+            PasswordConnectionInfo connectionInfo = new PasswordConnectionInfo(textBox7.Text, 22, "devel", "devel");
+            //connectionInfo.Timeout = TimeSpan.FromSeconds(30);
+            richTextBox1.Clear();
+            using (var client = new SshClient(connectionInfo))
+            {
+                try
+                {
+                    client.Connect();
+                    if (client.IsConnected)
+                    {
+                        client.Connect();
+
+                        /* List<string> commands = new List<string>();
+                         commands.Add("pwd");
+                         commands.Add("cat /etc/sudoers");
+
+                         ShellStream shellStream = client.CreateShellStream("xterm", 80, 24, 800, 600, 1024);
+
+                         // Switch to root
+                         SwithToRoot("xgun,yadg", shellStream);
+
+                         // Execute commands under root account
+                         foreach (string command in commands)
+                         {
+                             WriteStream(command, shellStream);
+
+                             string answer = ReadStream(shellStream);
+                             int index = answer.IndexOf(System.Environment.NewLine);
+                             answer = answer.Substring(index + System.Environment.NewLine.Length);
+                             Console.WriteLine("Command output: " + answer.Trim());
+                         }
+
+                         client.Disconnect();*/
+                        
+                         richTextBox1.Text += "SSH connection active";
+                        var result = client.RunCommand("cp apteka.dll /home/apteka/bin");//var result = client.RunCommand("chmod -R 777 "+ pyt);
+                        richTextBox1.Text += result.Result.ToString();
+                         client.Disconnect();
+                    }
+                    else
+                    {
+                        Console.WriteLine("SSH connection NOTactive");
+                    }
+
+                }
+                catch { }
+            }
+
+        }
+        private void button16_Click(object sender, EventArgs e)
+        {
+            allping();
+        }
+       
+        private void Download()
+        {
+            if (textBox1.Text != "")
+            {
+                try
+                {
+                    int Port = 22;
+                    string Host = textBox7.Text;
+                    string Username = "devel";
+                    string Password = "devel";
+                    string RemotePath = textBox13.Text;
+                    string SourcePath = textBox1.Text;
+                    // string FileName = "download.txt";
+
+                    string SourceFilePath = SourcePath;
+                    using (var stream = new FileStream(SourceFilePath, FileMode.Create))
+                    using (var client = new SftpClient(Host, Port, Username, Password))
+                    {
+                        client.Connect();
+
+                        string RemoteFilePath = RemotePath;
+                        SftpFileAttributes attrs = client.GetAttributes(RemoteFilePath);
+                        // Set progress bar maximum on foreground thread
+                        int max = (int)attrs.Size;
+                        progressBar1.Invoke(
+                            (MethodInvoker)delegate { progressBar1.Maximum = max; });
+                        // Download with progress callback
+                        client.DownloadFile(RemoteFilePath, stream, DownloadProgresBar);
+                        MessageBox.Show("Download complete");
+                    }
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                }
+            }
+        }
+
+        private void DownloadProgresBar(ulong uploaded)
+        {
+            // Update progress bar on foreground thread
+            progressBar1.Invoke(
+                (MethodInvoker)delegate { progressBar1.Value = (int)uploaded; });
+        }
+        private void button7_Click_1(object sender, EventArgs e)//chmod -R 777 /mnt/data
+        {
+            // Run Download on background thread
+            Task.Run(() => Download());
+            /* PasswordConnectionInfo connectionInfo = new PasswordConnectionInfo(textBox7.Text, 22, "devel", "devel");
+             connectionInfo.Timeout = TimeSpan.FromSeconds(30);
+
+             using (var client = new Renci.SshNet.SftpClient(connectionInfo))
+             {
+                 try
+                 {
+                     client.Connect();
+                     if (client.IsConnected)
+                     {
+                         richTextBox1.Text += "SSH connection active" + Environment.NewLine;
+                         var sendFilePath = textBox1.Text;
+                         var reseiveFilePath = textBox13.Text;
+                         var sendStream = File.OpenRead(sendFilePath);
+                         client.UploadFile(sendStream, Path.GetFileName(sendFilePath), true);
+
+                          var reseiveStream = File.OpenWrite(reseiveFilePath);
+                         await reseiveStream1 = client.DownloadFile(Path.GetFileName(sendFilePath), reseiveStream)
+                         client.EndDownloadFile();
+                         //var result = client.RunCommand("scp test.txt root@"+textBox7.Text+":/home/devel");
+                         //richTextBox1.Text += result.Result.ToString();
+                         //var result2 = client.RunCommand("devel");
+                         //richTextBox1.Text += result2.Result.ToString();
+                         //richTextBox1.Text += "Отправлен в "+ textBox1.Text+ " на "+ textBox7.Text + Environment.NewLine;
+                         cmod(reseiveFilePath);
+                     }
+                     else
+                     {
+                         richTextBox1.Text += "SSH connection NOTactive в " + textBox1.Text + " на " + textBox7.Text + Environment.NewLine;
+
+                     }
+
+                 }
+                 catch {  }
+             }*/
+        }
+
+        private void textBox13_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button12_Click_2(object sender, EventArgs e)
+        {
+            var fileContent = string.Empty;
+            var filePath = string.Empty;
+
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.InitialDirectory = "c:\\";
+                openFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+                openFileDialog.FilterIndex = 2;
+                openFileDialog.RestoreDirectory = true;
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    //Get the path of specified file
+                    filePath = openFileDialog.FileName;
+
+                    //Read the contents of the file into a stream
+                    var fileStream = openFileDialog.OpenFile();
+
+                    using (StreamReader reader = new StreamReader(fileStream))
+                    {
+                        fileContent = reader.ReadToEnd();
+                    }
+                }
+            }
+            textBox1.Text = filePath;
+        }
+        private void button17_Click(object sender, EventArgs e)
+        {
+            if (textBox1.Text != "" && textBox1.Text != "")
+            {
+                DataSet dss = new DataSet();
+                NpgsqlConnection con = new NpgsqlConnection(PATH);
+                con.Open();
+                string sql = "SELECT w.podraz, w.kod_parus, w.ip_server, w.alias FROM public.\"Apteka\" w ORDER BY w.kod_parus ASC";
+                NpgsqlDataAdapter da = new NpgsqlDataAdapter(sql, con);
+                dss.Reset();
+                da.Fill(dss);
+                DataTable dtt;
+                dtt = dss.Tables[0];
+                con.Close();
+                richTextBox1.Clear();
+                try
+                {
+                    foreach (DataRow row in dtt.Rows)
+                    {
+                        PasswordConnectionInfo connectionInfo = new PasswordConnectionInfo(row["ip_server"].ToString(), 22, "devel", "devel");
+                        connectionInfo.Timeout = TimeSpan.FromSeconds(30);
+
+                        using (var client = new Renci.SshNet.SftpClient(connectionInfo))
+                        {
+                            try
+                            {
+                                client.Connect();
+                                if (client.IsConnected)
+                                {
+                                    richTextBox1.Text += "SSH connection active"+ row["kod_parus"].ToString() + " || " + row["ip_server"].ToString() + Environment.NewLine;
+                                    var sendFilePath = textBox1.Text;
+                                    var reseiveFilePath = textBox13.Text;
+                                    var sendStream = File.OpenRead(sendFilePath);
+                                    client.UploadFile(sendStream, Path.GetFileName(sendFilePath), true);
+
+                                    var reseiveStream = File.OpenWrite(reseiveFilePath);
+                                    client.DownloadFile(Path.GetFileName(sendFilePath), reseiveStream);
+                                    //richTextBox1.Text += "Отправлен в " + textBox1.Text + " на " + row["kod_parus"].ToString() + " || " + row["ip_server"].ToString() + Environment.NewLine;
+
+                                }
+                                else
+                                {
+                                    richTextBox1.Text += "SSH connection NOTactive " + row["kod_parus"].ToString() + " || " + row["ip_server"].ToString() + Environment.NewLine;
+                                    //Console.WriteLine("SSH connection NOTactive");
+                                }
+
+                            }
+                            catch {  }
+                        }
+                    }
+                }
+                catch { richTextBox1.Text += "Ошибка запроса"; }
+            }
+            else { richTextBox1.Text += "Заполните поля"; }
+        }
+
+        private void button20_Click(object sender, EventArgs e)
+        {
+            cmod("");
+        }
+
+        private void button21_Click(object sender, EventArgs e)
+        {
+         
+        }
+
+        private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void checkBox12_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox17_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void генераторDMToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            GENDM newForm = new GENDM();
+            newForm.Show();
+        }
+
+        private void накатитьОтчетToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OTCHET newForm = new OTCHET();
+            newForm.Show();
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void накатитьСкриптToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SCRIPT newForm = new SCRIPT();
+            newForm.Show();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            richTextBox1.Clear();
+            NpgsqlConnection nc = new NpgsqlConnection(PATH);
+            try
+            {
+                //Открываем соединение.
+                nc.Open();
+
+                using (var command = new NpgsqlCommand("SELECT w.ip_server,w.alias,w.id  FROM  \"Apteka\" w ORDER BY w.kod_parus ASC", nc))
+                {
+
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+
+                        richTextBox1.Text += reader.GetString(1).ToString() + "{" + reader.GetValue(0).ToString() + "{" + reader.GetValue(2).ToString() + Environment.NewLine;
+                    }
+
+
+                    reader.Close();
+                }
+                //textBox9.AppendText(fb.Count.ToString());
+               // fireb(PATH);
+            }
+            catch (Exception ex)
+            {
+                //Код обработки ошибок
+                richTextBox1.Text += ex.Message.ToString() + Environment.NewLine;
+            }
         }
 
         private void label9_Click(object sender, EventArgs e)

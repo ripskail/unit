@@ -1,6 +1,6 @@
 ﻿namespace pharm2
 {
-    partial class Form5
+    partial class ADD
     {
         /// <summary>
         /// Required designer variable.
@@ -55,7 +55,7 @@
             this.button1.TabIndex = 1;
             this.button1.Text = "Добавить";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.INSERT);
             // 
             // button2
             // 
@@ -65,7 +65,7 @@
             this.button2.TabIndex = 2;
             this.button2.Text = "Удалить";
             this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.button2.Click += new System.EventHandler(this.DELETE);
             // 
             // textBox1
             // 
@@ -92,7 +92,7 @@
             this.button3.TabIndex = 7;
             this.button3.Text = "Редактировать";
             this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.button3.Click += new System.EventHandler(this.UPDATE);
             // 
             // textBox2
             // 
@@ -117,7 +117,7 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.dataGridView1);
             this.Name = "Form5";
-            this.Text = "Form5";
+            this.Text = "Добавить";
             this.Load += new System.EventHandler(this.Form5_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);

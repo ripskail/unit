@@ -1,6 +1,6 @@
 ﻿namespace pharm2
 {
-    partial class Form7
+    partial class ADDAPTEKA
     {
         /// <summary>
         /// Required designer variable.
@@ -463,7 +463,7 @@
             this.button1.Size = new System.Drawing.Size(122, 52);
             this.button1.TabIndex = 98;
             this.button1.Text = "Добавить";
-            this.button1.Click += new System.EventHandler(this.button1_Click_1);
+            this.button1.Click += new System.EventHandler(this.INSERT);
             // 
             // button2
             // 
@@ -473,7 +473,7 @@
             this.button2.TabIndex = 97;
             this.button2.Text = "Отмена";
             this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.button2.Click += new System.EventHandler(this.EXIT);
             // 
             // Form7
             // 
@@ -524,7 +524,7 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Name = "Form7";
-            this.Text = "Form7";
+            this.Text = "Добавить аптеку";
             this.ResumeLayout(false);
             this.PerformLayout();
 

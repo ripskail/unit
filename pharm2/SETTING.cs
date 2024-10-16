@@ -13,8 +13,8 @@ namespace pharm2
 {
     public partial class Form4 : Form
     {
-        Form1 m;
-        public Form4(Form1 form)
+        MAIN m;
+        public Form4(MAIN form)
         {
             InitializeComponent();
             m = form;
@@ -26,7 +26,7 @@ namespace pharm2
         }
         string fileContent = string.Empty;
         string filePath = string.Empty;
-        private void button6_Click(object sender, EventArgs e)
+        private void VNC(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
             if (ofd.ShowDialog() == DialogResult.OK)
@@ -35,7 +35,7 @@ namespace pharm2
             }
         }
 
-        private void button7_Click(object sender, EventArgs e)
+        private void PUTTY(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
             if (ofd.ShowDialog() == DialogResult.OK)
@@ -44,7 +44,7 @@ namespace pharm2
             }
         }
 
-        private void button8_Click(object sender, EventArgs e)
+        private void IB(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
             if (ofd.ShowDialog() == DialogResult.OK)
@@ -83,7 +83,7 @@ namespace pharm2
             }
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void OK(object sender, EventArgs e)
         { 
             if (textBox1.Text != null && textBox2.Text != null && textBox3.Text != null)
             {
@@ -98,12 +98,12 @@ namespace pharm2
             }
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private void EXIT(object sender, EventArgs e)
         {
             this.Close();
         }
 
-        private void button9_Click(object sender, EventArgs e)
+        private void WINSCP(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
             if (ofd.ShowDialog() == DialogResult.OK)

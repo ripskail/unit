@@ -12,13 +12,13 @@ using Npgsql;
 
 namespace pharm2
 {
-    public partial class Form2 : Form
+    public partial class ALLAPTEKA : Form
     {
         DataTable f;
-        Form1 m;
-        Form2 qw;
+        MAIN m;
+        ALLAPTEKA qw;
         string PATH,STR;
-        public Form2(Form1 form)
+        public ALLAPTEKA(MAIN form)
         {
             InitializeComponent();
             m = form;
@@ -175,7 +175,7 @@ namespace pharm2
 
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void CLEAR(object sender, EventArgs e)
         {
             textBox1.Clear();
         }
@@ -185,14 +185,14 @@ namespace pharm2
 
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void INSERT(object sender, EventArgs e)
         {
 
-            Form7 newForm = new Form7(m,this);
+            ADDAPTEKA newForm = new ADDAPTEKA(m,this);
             newForm.Show();
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void DELETE(object sender, EventArgs e)
         {
             string st = "DELETE FROM public.\"Apteka\"WHERE id =" + dataGridView1[0, dataGridView1.CurrentRow.Index].Value.ToString() + ";";
 
@@ -334,11 +334,6 @@ namespace pharm2
             olast();
         }
 
-        private void фильтрToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void checkBox3_CheckedChanged(object sender, EventArgs e)
         {
             olast();
@@ -378,7 +373,7 @@ namespace pharm2
             }
             else
             {
-                Form8 newForm = new Form8(this);
+                SETTABL newForm = new SETTABL(this);
                 newForm.Show();
 
             }

@@ -146,5 +146,10 @@ namespace pharm2
             MessageBox.Show("Файл успешно сохранён!");
             */
         }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

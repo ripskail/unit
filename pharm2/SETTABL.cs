@@ -10,10 +10,10 @@ using System.Windows.Forms;
 
 namespace pharm2
 {
-    public partial class Form8 : Form
+    public partial class SETTABL : Form
     {
-        Form2 ff;
-        public Form8(Form2 f)
+        ALLAPTEKA ff;
+        public SETTABL(ALLAPTEKA f)
         {
             InitializeComponent();
             ff = f;

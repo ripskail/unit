@@ -11,12 +11,12 @@ using System.Windows.Forms;
 
 namespace pharm2
 {
-    public partial class Form7 : Form
+    public partial class ADDAPTEKA : Form
     {
-        Form1 m;
-        Form2 d;
+        MAIN m;
+        ALLAPTEKA d;
         string PATH;
-        public Form7(Form1 f, Form2 fo)
+        public ADDAPTEKA(MAIN f, ALLAPTEKA fo)
         {
             InitializeComponent();
             PATH = Settings1.Default.PATH;
@@ -142,7 +142,7 @@ namespace pharm2
 
    
 
-        private void button1_Click_1(object sender, EventArgs e)
+        private void INSERT(object sender, EventArgs e)
         {
             try
             {
@@ -150,7 +150,15 @@ namespace pharm2
                 con.Open();
                 DataSet ers = new DataSet();
                 if (dateTimePicker1.Text == "") { dateTimePicker1.Text = "07.04.2020"; }
-                string sql = "INSERT INTO public.\"Apteka\"(obl_id, podraz, kod_parus, adress, kol_rs, activ, \"Chek_server\", version, ip_server, elec_recept, acha, lekarstvo, os, docker, zayvka, alias, phone, comment, scan_recept, firebird, \"bit\", checkbase, backup, pkillmono, nbackup, prov_backup) VALUES(" + comboBox2.SelectedValue + ", '" + textBox3.Text + "', '" + textBox4.Text + "', '" + textBox2.Text + "', '" + textBox5.Text + "', '" + checkBox10.Checked + "', '" + checkBox1.Checked + "', " + comboBox3.SelectedValue + ", '" + textBox7.Text + "', '" + checkBox2.Checked + "','" + checkBox3.Checked + "', '" + checkBox4.Checked + "', '" + comboBox4.SelectedValue + "', '" + checkBox5.Checked + "', '" + checkBox6.Checked + "', '" + textBox9.Text + "', '" + textBox16.Text + "', '" + textBox15.Text + "', '" + textBox10.Text + "', '" + comboBox5.SelectedValue + "','" + comboBox6.SelectedValue + "','" + checkBox3.Checked + "', '" + checkBox7.Checked + "','" + checkBox9.Checked + "','" + checkBox8.Checked + "', '" + dateTimePicker1.Value + "');";
+                string sql = "INSERT INTO public.\"Apteka\"(obl_id, podraz, kod_parus, adress, kol_rs, activ, \"Chek_server\", " +
+                    "version, ip_server, elec_recept, acha, lekarstvo, os, docker, zayvka, alias, phone, comment, scan_recept, " +
+                    "firebird, \"bit\", checkbase, backup, pkillmono, nbackup, prov_backup) VALUES(" + comboBox2.SelectedValue + ", " +
+                    "'" + textBox3.Text + "', '" + textBox4.Text + "', '" + textBox2.Text + "', '" + textBox5.Text + "', " +
+                    "'" + checkBox10.Checked + "', '" + checkBox1.Checked + "', " + comboBox3.SelectedValue + ", '" + textBox7.Text + "', " +
+                    "'" + checkBox2.Checked + "','" + checkBox3.Checked + "', '" + checkBox4.Checked + "', '" + comboBox4.SelectedValue + "', " +
+                    "'" + checkBox5.Checked + "', '" + checkBox6.Checked + "', '" + textBox9.Text + "', '" + textBox16.Text + "', '" + textBox15.Text + "', " +
+                    "'" + textBox10.Text + "', '" + comboBox5.SelectedValue + "','" + comboBox6.SelectedValue + "','" + checkBox3.Checked + "', " +
+                    "'" + checkBox7.Checked + "','" + checkBox9.Checked + "','" + checkBox8.Checked + "', '" + dateTimePicker1.Value + "');";
                 NpgsqlDataAdapter da = new NpgsqlDataAdapter(sql, con);
                 ers.Reset();
                 da.Fill(ers);
@@ -169,7 +177,7 @@ namespace pharm2
             
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void EXIT(object sender, EventArgs e)
         {
             this.Close();
         }

@@ -11,13 +11,13 @@ using System.Windows.Forms;
 
 namespace pharm2
 {
-    public partial class Form5 : Form
+    public partial class ADD : Form
     {
         private DataSet ds = new DataSet();
         private DataTable dt = new DataTable();
         int flag;
         string PATH;
-        public Form5(int f)
+        public ADD(int f)
         {
             InitializeComponent();
             flag = f;
@@ -47,24 +47,24 @@ namespace pharm2
         {
             if (flag == 1)
             {
-                st = "SELECT * FROM \"Version\";";
+                st = "SELECT * FROM \"Version\" ORDER BY name;";
             }
             if (flag == 2)
             {
-                st = "SELECT * FROM \"Bit\";";
+                st = "SELECT * FROM \"Bit\" ORDER BY name;";
 
             }
             if (flag == 3)
             {
-                st = "SELECT * FROM \"Firebird\";";
+                st = "SELECT * FROM \"Firebird\" ORDER BY name;";
             }
             if (flag == 4)
             {
-                st = "SELECT * FROM \"Obl\";";
+                st = "SELECT * FROM \"Obl\" ORDER BY name;";
             }
             if (flag == 5)
             {
-                st = "SELECT * FROM \"OS\";";
+                st = "SELECT * FROM \"OS\" ORDER BY name;";
             }
 
             NpgsqlConnection con = new NpgsqlConnection(PATH);
@@ -80,7 +80,7 @@ namespace pharm2
             dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             dataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
         }
-        private void button1_Click(object sender, EventArgs e)
+        private void INSERT(object sender, EventArgs e)
         {
             if (flag == 1)
             {
@@ -115,7 +115,7 @@ namespace pharm2
             fill();
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void DELETE(object sender, EventArgs e)
         {
             
                 if (flag == 1)
@@ -148,7 +148,7 @@ namespace pharm2
             fill();
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void UPDATE(object sender, EventArgs e)
         {
            
             if (flag == 1)
